@@ -1,5 +1,5 @@
 require 'twitter'
-client = Twitter::Streaming::Client.new do |config|
+client = Twitter::REST::Client.new do |config|
     config.consumer_key        = "6clMQc5LA3irCE7JSgM3AC0jL"
     config.consumer_secret     = "vDFGq7hrwrUgTfRmvui59dMdABNtGg1lwaN14SMdphvMyBToTv"
     config.access_token        = "27039781-0mljdsIiAZ0EV6ZqsLJXCOKjuhLrwZ3xFCUx4269"
