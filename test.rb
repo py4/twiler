@@ -6,7 +6,7 @@ client = Twitter::REST::Client.new do |config|
     config.access_token_secret = "r9T1w5ENSGpP9KBnApqTEsaXWe0Ja49TTw20NR4h416GS"
 end
 
-client.search("to:justinbieber marry me", :result_type => "recent").take(3).collect do |tweet|
+client.search("to:justinbieber marry me", :result_type => "recent").take(500).collect do |tweet|
       puts "#{tweet.user.screen_name}: #{tweet.text}"
 end
 
