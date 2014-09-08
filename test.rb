@@ -7,6 +7,6 @@ client = Twitter::REST::Client.new do |config|
 end
 
 client.search("to:justinbieber marry me", :result_type => "recent").take(3).collect do |tweet|
-      "#{tweet.user.screen_name}: #{tweet.text}"
+      puts "#{tweet.user.screen_name}: #{tweet.text}"
 end
 
