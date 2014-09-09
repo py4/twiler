@@ -6,7 +6,7 @@ client = Twitter::REST::Client.new do |config|
     config.access_token_secret = "r9T1w5ENSGpP9KBnApqTEsaXWe0Ja49TTw20NR4h416GS"
 end
 
-puts client.search("I rated #IMDB").count #take(3).collect do |tweet|
+puts client.search(ARGV[0]).count #take(3).collect do |tweet|
     #puts "#{tweet.user.methods}"
     #puts tweet.retweeted_by
     #puts "#{tweet}"
