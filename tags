@@ -1,0 +1,83 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.9~svn20110310	//
+Backbone	backbone.py	/^class Backbone:$/;"	c
+__init__	backbone.py	/^    def __init__(self):$/;"	m	class:Backbone
+b	bandsintown.py	/^    b = Backbone()$/;"	v
+b	goodreads.py	/^    b = Backbone()$/;"	v
+b	imdb.py	/^    b = Backbone()$/;"	v
+b	lastfm.py	/^    b = Backbone()$/;"	v
+b	pandora.py	/^    b = Backbone()$/;"	v
+b	shelfari.py	/^    b = Backbone()$/;"	v
+b	youtube.py	/^    b = Backbone()$/;"	v
+dataset	bandsintown.py	/^    dataset = extractDataset(tweets)$/;"	v
+dataset	lastfm.py	/^    dataset = extractDataset(tweets)$/;"	v
+dataset	pandora.py	/^    dataset = extractDataset(tweets)$/;"	v
+dataset	shelfari.py	/^    dataset = extractDataset(tweets)$/;"	v
+datasetpath	bandsintown.py	/^    datasetpath = 'dataset\/bandsintown'$/;"	v
+datasetpath	goodreads.py	/^    datasetpath = 'datasets\/goodreads'$/;"	v
+datasetpath	imdb.py	/^    datasetpath = 'dataset\/imdb'$/;"	v
+datasetpath	lastfm.py	/^    datasetpath = 'datasets\/Lastfm'$/;"	v
+datasetpath	pandora.py	/^    datasetpath = 'datasets\/Pandora'$/;"	v
+datasetpath	shelfari.py	/^    datasetpath = 'dataset\/shelfari'$/;"	v
+dump_result	youtube.py	/^def dump_result(tweets, new_since_id, dataset_path, data_path, prefix = "base_tweets_"):$/;"	f
+extractDataFromTweet	bandsintown.py	/^def extractDataFromTweet(tweet):$/;"	f
+extractDataFromTweet	goodreads.py	/^def extractDataFromTweet(tweet):$/;"	f
+extractDataFromTweet	imdb.py	/^def extractDataFromTweet(tweet):$/;"	f
+extractDataFromTweet	lastfm.py	/^def extractDataFromTweet(tweet):$/;"	f
+extractDataFromTweet	pandora.py	/^def extractDataFromTweet(tweet):$/;"	f
+extractDataFromTweet	shelfari.py	/^def extractDataFromTweet(tweet):$/;"	f
+extractDataFromTweet	youtube.py	/^def extractDataFromTweet(tweet):$/;"	f
+extractDataset	bandsintown.py	/^def extractDataset(tweets):$/;"	f
+extractDataset	goodreads.py	/^def extractDataset(tweets):$/;"	f
+extractDataset	imdb.py	/^def extractDataset(tweets):$/;"	f
+extractDataset	lastfm.py	/^def extractDataset(tweets):$/;"	f
+extractDataset	pandora.py	/^def extractDataset(tweets):$/;"	f
+extractDataset	shelfari.py	/^def extractDataset(tweets):$/;"	f
+extractDataset	youtube.py	/^def extractDataset(tweets):$/;"	f
+extractRating	bandsintown.py	/^def extractRating(text):$/;"	f
+extractRating	imdb.py	/^def extractRating(text):$/;"	f
+extractRating	shelfari.py	/^def extractRating(text):$/;"	f
+extractRatingFromTweet	goodreads.py	/^def extractRatingFromTweet(tweet):$/;"	f
+extractTitleArtistFromTweet	lastfm.py	/^def extractTitleArtistFromTweet(text):$/;"	f
+extractTitleArtistFromTweet	pandora.py	/^def extractTitleArtistFromTweet(text):$/;"	f
+extractYouTubeIDFRomLink	youtube.py	/^def extractYouTubeIDFRomLink(url):$/;"	f
+full_update	youtube.py	/^def full_update(dataset_path, base_data_path, data_path, backbone):$/;"	f
+get_IMDB_id	imdb.py	/^def get_IMDB_id(imdb_link):$/;"	f
+get_event_id	bandsintown.py	/^def get_event_id(event_link):$/;"	f
+get_shelfari_id	shelfari.py	/^def get_shelfari_id(shelfari_link):$/;"	f
+get_since_id	bandsintown.py	/^def get_since_id(path):$/;"	f
+get_since_id	goodreads.py	/^def get_since_id(path):$/;"	f
+get_since_id	imdb.py	/^def get_since_id(path):$/;"	f
+get_since_id	lastfm.py	/^def get_since_id(path, state, user_id = -1):$/;"	f
+get_since_id	pandora.py	/^def get_since_id(path):$/;"	f
+get_since_id	shelfari.py	/^def get_since_id(path):$/;"	f
+get_since_id	youtube.py	/^def get_since_id(path, state, user_id = -1):$/;"	f
+partial_update	youtube.py	/^def partial_update(dataset_path, data_path, backbone):$/;"	f
+scrape_goodreads_data	goodreads.py	/^def scrape_goodreads_data(url):$/;"	f
+searchTweets	backbone.py	/^    def searchTweets(self, query, since):$/;"	m	class:Backbone
+search_user_timeline	backbone.py	/^    def search_user_timeline(self,query, since, tl_user_id):$/;"	m	class:Backbone
+since_id	bandsintown.py	/^    since_id = get_since_id(datasetpath)$/;"	v
+since_id	goodreads.py	/^    since_id = get_since_id(datasetpath)$/;"	v
+since_id	imdb.py	/^    since_id = get_since_id(datasetpath)$/;"	v
+since_id	lastfm.py	/^    since_id = get_since_id(datasetpath)$/;"	v
+since_id	pandora.py	/^    since_id = get_since_id(datasetpath)$/;"	v
+since_id	shelfari.py	/^    since_id = get_since_id(datasetpath)$/;"	v
+t	backbone.py	/^    t = None$/;"	v	class:Backbone
+writeDataset	bandsintown.py	/^def writeDataset(dataset, filename):$/;"	f
+writeDataset	goodreads.py	/^def writeDataset(ratings, items, users, path):$/;"	f
+writeDataset	imdb.py	/^def writeDataset(dataset, filename):$/;"	f
+writeDataset	lastfm.py	/^def writeDataset(dataset, filename):$/;"	f
+writeDataset	pandora.py	/^def writeDataset(dataset, filename):$/;"	f
+writeDataset	shelfari.py	/^def writeDataset(dataset, filename):$/;"	f
+writeDataset	youtube.py	/^def writeDataset(dataset, filename):$/;"	f
+writeTweets	bandsintown.py	/^def writeTweets(tweets, filename):$/;"	f
+writeTweets	goodreads.py	/^def writeTweets(tweets, filename):$/;"	f
+writeTweets	imdb.py	/^def writeTweets(tweets, filename):$/;"	f
+writeTweets	lastfm.py	/^def writeTweets(tweets, filename):$/;"	f
+writeTweets	pandora.py	/^def writeTweets(tweets, filename):$/;"	f
+writeTweets	shelfari.py	/^def writeTweets(tweets, filename):$/;"	f
+writeTweets	youtube.py	/^def writeTweets(tweets, filename):$/;"	f

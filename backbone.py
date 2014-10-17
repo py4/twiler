@@ -6,7 +6,7 @@
 
 #THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #from twitter import *
-import twitter
+from twitter import *
 import sys
 
 class Backbone:
@@ -24,6 +24,28 @@ class Backbone:
             print 'Error connecting to twitter'
             sys.exit()
 
+    def search_user_timeline(self,query, since, tl_user_id):
+        print "searching in timeline of user with id: " + str(tl_user_id)
+        tweets = list()
+        the_max_id = None
+        the_max_id_oneoff = None
+        new_since_id = since
+
+        res = self.t.statuses.user_timeline(user_id = tl_user_id, count = 100)
+        num_results = len(res)
+        print 'Found ' + str(num_results) + ' tweets from fucking timeling'
+        for d in res:
+            if not query in d['text']:
+                continue
+            tweets.append(d)
+            tweetid = d['id']
+
+            if new_since_id < tweetid:
+                new_since_id = tweetid
+
+        print 'Found ' + str(len(tweets)) + ' tweets.'
+        return tweets, new_since_id
+
     def searchTweets(self, query, since):
         tweets = list()
         the_max_id = None #start with empty max
@@ -31,18 +53,20 @@ class Backbone:
         new_since_id = since
 
         number_of_iterations = 0
-        while (number_of_iterations <= 50):
+        while (number_of_iterations <= 100):
             number_of_iterations += 1
-            count = 100 #maximum number of tweets allowed in one result set
-            try:
-                if the_max_id != None:
-                    the_max_id_oneoff = the_max_id -1
-                    res = self.t.search.tweets(q=query, result_type='recent', count=count,since_id=since,max_id=the_max_id_oneoff)
-                else:
-                    res = self.t.search.tweets(q=query, result_type='recent', count=count,since_id=since)
-            except:
-                print 'Error searching for tweets'
-                return tweets, new_since_id
+            count = 200 #maximum number of tweets allowed in one result set
+            #try:
+            if the_max_id != None:
+                the_max_id_oneoff = the_max_id -1
+                    #798959545 ermirss
+                    #res = self.t.users.search(q=query, result_type='recent', count=count,since_id=since,max_id=the_max_id_oneoff)
+                res = self.t.search.tweets(q=query, result_type='recent', count=count,since_id=since,max_id=the_max_id_oneoff)
+            else:
+                res = self.t.search.tweets(q=query, result_type='recent', count=count,since_id=since)
+            #except:
+            #    print 'Error searching for tweets'
+            #    return tweets, new_since_id
 
             try:
                 #Extract the tweets from the results

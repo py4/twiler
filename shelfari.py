@@ -1,10 +1,12 @@
-#Copyright (C) 2014, Simon Dooms
+#Copyright (C) 2014, Pooya Moradi
 
 #Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
 #The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
 #THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+
 from backbone import Backbone
 from datetime import datetime
 import re
@@ -13,7 +15,7 @@ import glob
 import os
 
 def extractRating(text):
-    pattern = '([0-9]+)/10'
+    pattern = "([0-9]+) stars"
     p = re.compile(pattern,re.M | re.I)
     matches = p.findall(text)
     if len(matches) != 0:
@@ -22,11 +24,12 @@ def extractRating(text):
         rating = ''
     return rating
 
-def get_IMDB_id(imdb_link):
+def get_shelfari_id(shelfari_link):
     #http://www.imdb.com/title/tt0970866
-    pattern = '.*?/tt([0-9]*)/*$'
+    #http://www.shelfari.com/books/111231104?syntc=twb&uid=o1515121837
+    pattern = '.*?/([0-9]*)\\?/*'
     p = re.compile(pattern,re.M | re.I)
-    matches = p.findall(imdb_link)
+    matches = p.findall(shelfari_link)
     if len(matches) > 0:
         return matches[0]
     else:
@@ -35,7 +38,7 @@ def get_IMDB_id(imdb_link):
 def extractDataFromTweet(tweet):
     user = -1
     screen_name = -1
-    movie = -1
+    book = -1
     rating = -1
     timestamp = -1
     try:
@@ -44,7 +47,7 @@ def extractDataFromTweet(tweet):
         screen_name = tweet['user']['screen_name']
         #imdb id = movie id
         url = tweet['entities']['urls'][0]['expanded_url']
-        movie = get_IMDB_id(url)
+        book = get_shelfari_id(url)
         #rating
         rating = extractRating(tweet['text'])
         #timestamp
@@ -52,28 +55,27 @@ def extractDataFromTweet(tweet):
         the_time = datetime.strptime(timestamp.replace(' +0000',''), '%a %b %d %H:%M:%S %Y')
         timestamp = (the_time-datetime(1970,1,1)).total_seconds()
         timestamp = int(timestamp)
-        line = str(user) + ',' + str(screen_name) + ',' + str(movie) + ',' + str(rating) +  ',' + str(timestamp)
-        print line
+        line = str(user) + ',' + str(screen_name) + ',' + str(book) + ',' + str(rating) +  ',' + str(timestamp)
     except:
-        return user, screen_name, movie, rating, timestamp
-    return user, screen_name, movie, rating, timestamp
+        return user, screen_name, book, rating, timestamp
+    return user, screen_name, book, rating, timestamp
 
 def extractDataset(tweets):
     dataset = list()
     for tweet in tweets:
         try:
-            user, screen_name, movie, rating, timestamp = extractDataFromTweet(tweet)
-            if user == -1 or screen_name == -1 or movie == -1 or rating == -1 or timestamp == -1:
+            user, screen_name, book, rating, timestamp = extractDataFromTweet(tweet)
+            if user == -1 or screen_name == -1 or book == -1 or rating == -1 or timestamp == -1:
                 continue
-            dataset.append((user, screen_name, movie, rating, timestamp))
+            dataset.append((user, screen_name, book, rating, timestamp))
         except:
             continue
     return dataset
 
 def writeDataset(dataset, filename):
     lines = list()
-    for ((user, screen_name, movie, rating, timestamp)) in dataset:
-        line = str(user) + ',' + str(screen_name) + ',' + str(movie) + ',' + str(rating) + ',' + str(timestamp) + '\n'
+    for ((user, screen_name, book, rating, timestamp)) in dataset:
+        line = str(user) + ',' + str(screen_name) + ',' + str(book) + ',' + str(rating) + ',' + str(timestamp) + '\n'
         line = line.encode('UTF-8')
         lines.append(line)
     print "writing to dataset"
@@ -98,24 +100,14 @@ def get_since_id(path):
     return since_id
 
 if __name__ == "__main__":
+
     b = Backbone()
 
-    datasetpath = 'dataset/imdb'
+    datasetpath = 'dataset/shelfari'
     since_id = get_since_id(datasetpath)
 
-    # screen_names = set()
-    # for line in open(datasetpath + '/ratings.dat', 'r'):
-    #     screen_names.add(line.split(',')[1])
-    
-    # for name in screen_names:
-    #     tweets, new_since_id = b.searchTweets("I rated #IMDB from:"+screen_names)
-    #     dataset = extractDataset(tweets)
-    #     writeDataset(dataset, datasetpath + '/ratings_user.dat')
-    #     writeTweets(tweets, datasetpath + '/tweets_')
+    tweets, new_since_id =  b.searchTweets('rated it stars +shelfari', since_id)
 
-    print(len(b.t.search.tweets(q="I rated from:SLSmith65", count=101)['statuses']))
-    #tweets, new_since_id =  b.searchTweets('I rated #IMDB from:ladawncp', since_id)
-
-    #dataset = extractDataset(tweets)
-    #writeDataset(dataset, datasetpath + '/ratings.dat')
-    #writeTweets(tweets,datasetpath + '/tweets_' + str(new_since_id) + '.json')
+    dataset = extractDataset(tweets)
+    writeDataset(dataset, datasetpath + '/ratings.dat')
+    writeTweets(tweets,datasetpath + '/tweets_' + str(new_since_id) + '.json')

@@ -12,39 +12,50 @@ import json
 import glob
 import urllib
 import os
+import time
 from multiprocessing import Pool
 
 def scrape_goodreads_data(url):
+    print "start scraping goodreads data"
+    start_time = time.time()
+
     #scrape the url
-    try:
-        search = urllib.urlopen(url)
-    except:
-        return -1, -1, -1
+    #try:
+    search = urllib.urlopen(url)
+    #except:
+    #    return -1, -1, -1
     html = search.read()
     search.close()
+
+    print("waited: " + str(time.time() - start_time))
+
     #check if goodreads page
     pattern = '<meta property="og:site_name" content="Goodreads"/>'
     p = re.compile(pattern,re.M | re.I)
     matches = p.search(html)
     if matches == None:
-        return -1, -1, -1
+        print "shit1"
+        #return -1, -1, -1
     #extract goodreads user
     pattern = '<span class="reviewer"><a href="/user/show/(.+?)" class="userReview" itemprop="author">'
     p = re.compile(pattern,re.M | re.I | re.S)
     matches = p.findall(html)
     if len(matches) == 0:
-        return -1, -1, -1
+        print "shit1.5"
+        #return -1, -1, -1
     goodreads_user = matches[0]
     #extract item id and title
     pattern = '<a href="/book/show/(.+?)" class="bookTitle" itemprop="url">' 
     m = re.search(pattern,html)
     if m == None:
-        return -1, -1, -1
+        print "shit2"
+        #return -1, -1, -1
     item = m.group(1)
     pattern = '<a href="/book/show/'+str(item)+'" class="bookTitle" itemprop="url">(.+?)</a>'
     m = re.search(pattern, html)
     if m == None:
-        return -1, -1, -1
+        print "shit3"
+        #return -1, -1, -1
     title = m.group(1)
     return goodreads_user, item, title
 
@@ -81,7 +92,9 @@ def extractDataFromTweet(tweet):
         except:
             #there are no URLs? 
             print 'No URLs found, skipping this tweet...' 
+            print tweet['text']
             return user, item, timestamp, goodreads_user, title, rating
+
         goodreads_user, item, title = scrape_goodreads_data(url)        
         return user, item, timestamp, goodreads_user, title, rating
     except:
@@ -139,10 +152,10 @@ def get_since_id(path):
 if __name__ == "__main__":    
     b = Backbone()
 
-    datasetpath = 'datasets/Goodreads'
+    datasetpath = 'datasets/goodreads'
     since_id = get_since_id(datasetpath)
 
-    tweets, new_since_id =  b.searchTweets('of 5 stars to', since_id)
+    tweets, new_since_id =  b.searchTweets('of 5 stars to +goodreads', since_id)
     ratings, items, users = extractDataset(tweets)
     writeDataset(ratings, items, users, datasetpath)
     writeTweets(tweets,datasetpath + '/tweets_' + str(new_since_id) + '.json')
