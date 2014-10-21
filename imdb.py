@@ -100,20 +100,20 @@ def get_since_id(path):
 if __name__ == "__main__":
     b = Backbone()
 
-    datasetpath = 'dataset/imdb'
-    since_id = get_since_id(datasetpath)
+    #datasetpath = 'dataset/imdb'
+    #since_id = get_since_id(datasetpath)
 
     # screen_names = set()
     # for line in open(datasetpath + '/ratings.dat', 'r'):
     #     screen_names.add(line.split(',')[1])
-    
+
     # for name in screen_names:
     #     tweets, new_since_id = b.searchTweets("I rated #IMDB from:"+screen_names)
     #     dataset = extractDataset(tweets)
     #     writeDataset(dataset, datasetpath + '/ratings_user.dat')
     #     writeTweets(tweets, datasetpath + '/tweets_')
 
-    print(len(b.t.search.tweets(q="I rated from:SLSmith65", count=101)['statuses']))
+    print(len(b.t.search.tweets(q="I rated #IMDB",count=1000)['statuses']))
     #tweets, new_since_id =  b.searchTweets('I rated #IMDB from:ladawncp', since_id)
 
     #dataset = extractDataset(tweets)

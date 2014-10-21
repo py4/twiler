@@ -75,13 +75,36 @@ def get_since_id(path, state, user_id = -1):
         since_id = max(id, since_id)
     return since_id
 
+def partial_update(dataset_path, data_path, backbone):
+    since_id = get_since_id(dataset_path, 1)
+    tweets, new_since_id = backbone.searchTweets("a new favorite +soundcloud",since_id)
+    dump_result(tweets, new_since_id, dataset_path, data_path, "base_tweets_")
+
+def fully_update(dataset_path, base_data_path, data_path, backbone):
+    s = []
+    with open(dataset_path+"/"+base_data_path,'r') as f:
+        for line in f:
+            s.append(line.split(',')[0])
+    s = set(s)
+    for user_id in s:
+        since_id = get_since_id("dataset/lastfm",0,user_id)
+        if since_id != 1:
+            continue
+        try:
+            tweets, new_since_id = backbone.search_user_timeline("I'm listening to via @lastfm",since_id, user_id)
+            dataset = extractDataset(tweets)
+            writeDataset(dataset, dataset_path + '/' + data_path)
+            writeTweets(tweets, dataset_path + "/" + "tweets_"+str(user_id)+"_" + str(new_since_id) + '.json')
+        except TwitterHTTPError:
+            time.sleep(60*15)
+            continue
+
+def dump_result(tweets, new_since_id, dataset_path, data_path, prefix = "base_tweets_"):
+    dataset = extractDataset(tweets)
+    writeDataset(dataset, dataset_path + '/' + data_path)
+    writeTweets(tweets, dataset_path + "/" + prefix + str(new_since_id) + '.json')
+
+
 if __name__ == "__main__":
     b = Backbone()
-
-    datasetpath = 'datasets/Lastfm'
-    since_id = get_since_id(datasetpath)
-
-    tweets, new_since_id =  b.searchTweets("I'm listening to via @lastfm", since_id)
-    dataset = extractDataset(tweets)
-    writeDataset(dataset, datasetpath + '/listens.dat')
-    writeTweets(tweets,datasetpath + '/tweets_' + str(new_since_id) + '.json')
+    partial_update("dataset/lastfm","base_listens.dat",b)

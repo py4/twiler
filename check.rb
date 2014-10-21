@@ -1,6 +1,6 @@
 users = Hash.new { |h,k| h[k] = []}
 size = 0
-File.readlines("dataset/youtube-like/base_likes.dat").each do |line|
+File.readlines("dataset/lastfm/base_listens.dat").each do |line|
     splitted = line.split(',')
     users[splitted[0]] << splitted[1]
     size += 1

@@ -11,7 +11,8 @@ import re
 import json
 import glob
 import os
-
+import time
+from twitter import *
 def extractTitleArtistFromTweet(text):
     #I'm listening to "Like You'll Never See Me Again" by Alicia Keys on Pandora http://pdora.co/1cb8fBr  #pandora
     pattern = 'I.*listening to (.*) by (.*) on'
@@ -29,6 +30,7 @@ def extractDataFromTweet(tweet):
     timestamp = ''
     #user
     user = tweet['user']['id']
+    screen_name = tweet['user']['screen_name']
     #timestamp
     timestamp = tweet['created_at']
     the_time = datetime.strptime(timestamp.replace(' +0000',''), '%a %b %d %H:%M:%S %Y')
@@ -36,38 +38,38 @@ def extractDataFromTweet(tweet):
     timestamp = int(timestamp)
     #item
     songtitle, artist = extractTitleArtistFromTweet(tweet['text'])
-    return user, songtitle, artist, timestamp
-    
+    return user, screen_name, songtitle, artist, timestamp
+
 def extractDataset(tweets):
     dataset = list()
     for tweet in tweets:
         try:
-            user, songtitle, artist, timestamp = extractDataFromTweet(tweet)
-            if user == -1 or songtitle == -1 or artist == -1 or timestamp == -1:
+            user, screen_name, songtitle, artist, timestamp = extractDataFromTweet(tweet)
+            if user == -1 or screen_name == -1 or songtitle == -1 or artist == -1 or timestamp == -1:
                 continue
-            dataset.append((user, songtitle, artist, timestamp))
+            dataset.append((user, screen_name, songtitle, artist, timestamp))
         except:
             continue
     return dataset
-    
+
 def writeDataset(dataset, filename):
     lines = list()
-    for ((user, songtitle, artist, timestamp)) in dataset:
-        line = str(user) + '::'  + songtitle + '::' + artist +  '::' + str(timestamp) + '\n'
+    for ((user, screen_name, songtitle, artist, timestamp)) in dataset:
+        line = str(user) + ',' + str(screen_name) + ','  + songtitle + ',' + artist +  ',' + str(timestamp) + '\n'
         line = line.encode('UTF-8')
         lines.append(line)
     with file(filename, 'a') as outfile:
         outfile.writelines(lines)
-    
+
 def writeTweets(tweets, filename):
     line = json.dumps(tweets, ensure_ascii = False).encode('UTF-8')
     with file(filename, 'w') as outfile:
         outfile.writelines(line)
-        
-def get_since_id(path):
-    since_id  = 0
-    for infile in glob.glob( os.path.join(path, 'tweets_*.json') ):
-        pattern = 'tweets_([0-9]*).json'
+
+def get_since_id(path, state, user_id = -1):
+    since_id  = 1
+    for infile in glob.glob( os.path.join(path, "base_tweets_*.json" if state == 1 else "tweets_"+str(user_id)+"_"+"*.json") ):
+        pattern = 'base_tweets_([0-9]*).json' if state == 1 else 'tweets_'+str(user_id)+"_"+'([0-9]*).json'
         p = re.compile(pattern,re.M | re.I)
         matches = p.findall(infile)
         id = int(matches[0])
@@ -75,13 +77,43 @@ def get_since_id(path):
         since_id = max(id, since_id)
     return since_id
 
-if __name__ == "__main__":        
-    b = Backbone()
+def partial_update(dataset_path, data_path, backbone):
+    since_id = get_since_id(dataset_path, 1)
+    tweets, new_since_id = backbone.searchTweets("I'm listening to by on Pandora #pandora", since_id)
+    dump_result(tweets, new_since_id, dataset_path, data_path, "base_tweets_")
 
-    datasetpath = 'datasets/Pandora'
-    since_id = get_since_id(datasetpath)
+def full_update(dataset_path, base_data_path, data_path, backbone):
+    s = []
+    with open(dataset_path + "/" + base_data_path,'r') as f:
+        for line in f:
+            s.append(line.split(',')[0])
+    s = set(s)
+    for user_id in s:
+        since_id = get_since_id("dataset/pandora",0,user_id)
+        if since_id != 1:
+            continue
+        #tweets, new_since_id = backbone.searchTweets('test',since_id, int(user_id))
+        try:
+            tweets, new_since_id = backbone.search_user_timeline("I'm listening to by on Pandora #pandora",since_id, user_id)
+            dataset = extractDataset(tweets)
+            writeDataset(dataset, dataset_path + '/' + data_path)
+            writeTweets(tweets, dataset_path + "/" + "tweets_"+str(user_id)+"_" + str(new_since_id) + '.json')
+        except TwitterHTTPError:
+	    print("sleeting for 15 minutes")
+            time.sleep(60*15)
+            continue
+        #dump_result(tweets, new_since_id, dataset_path, data_path, "tweets_")
 
-    tweets, new_since_id =  b.searchTweets('I am listening to by on Pandora #pandora', since_id)
+def dump_result(tweets, new_since_id, dataset_path, data_path, prefix = "base_tweets_"):
     dataset = extractDataset(tweets)
-    writeDataset(dataset, datasetpath + '/listens.dat')
-    writeTweets(tweets,datasetpath + '/tweets_' + str(new_since_id) + '.json')
+    writeDataset(dataset, dataset_path + '/' + data_path)
+    writeTweets(tweets, dataset_path + "/" + prefix + str(new_since_id) + '.json')
+
+
+if __name__ == "__main__":
+    b = Backbone()
+    full_update("dataset/pandora","base_listens.dat","listens.dat",b)
+    #while True:
+    #	partial_update("dataset/pandora","base_listens.dat",b)
+    #	time.sleep(30)
+    

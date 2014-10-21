@@ -31,12 +31,13 @@ class Backbone:
         the_max_id_oneoff = None
         new_since_id = since
 
-        res = self.t.statuses.user_timeline(user_id = tl_user_id, count = 100)
+        res = self.t.statuses.user_timeline(user_id = tl_user_id, count = 1000)
+	#res = self.t.statuses.home_timeline(user_id=tl_user_id,count = 1000)
         num_results = len(res)
         print 'Found ' + str(num_results) + ' tweets from fucking timeling'
         for d in res:
-            if not query in d['text']:
-                continue
+	    if not all(x in d['text'] for x in query.split()):
+		continue
             tweets.append(d)
             tweetid = d['id']
 
