@@ -36,7 +36,10 @@ class Backbone:
         num_results = len(res)
         print 'Found ' + str(num_results) + ' tweets from fucking timeling'
         for d in res:
-	    if not all(x in d['text'] for x in query.split()):
+	    if not all(x.lower() in d['text'].lower() for x in query.split()):
+		if "rated" in d['text']:
+			print query
+			print d['text']
 		continue
             tweets.append(d)
             tweetid = d['id']

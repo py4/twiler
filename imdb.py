@@ -11,7 +11,8 @@ import re
 import json
 import glob
 import os
-
+from twitter import *
+import time
 def extractRating(text):
     pattern = '([0-9]+)/10'
     p = re.compile(pattern,re.M | re.I)
@@ -53,7 +54,6 @@ def extractDataFromTweet(tweet):
         timestamp = (the_time-datetime(1970,1,1)).total_seconds()
         timestamp = int(timestamp)
         line = str(user) + ',' + str(screen_name) + ',' + str(movie) + ',' + str(rating) +  ',' + str(timestamp)
-        print line
     except:
         return user, screen_name, movie, rating, timestamp
     return user, screen_name, movie, rating, timestamp
@@ -76,20 +76,18 @@ def writeDataset(dataset, filename):
         line = str(user) + ',' + str(screen_name) + ',' + str(movie) + ',' + str(rating) + ',' + str(timestamp) + '\n'
         line = line.encode('UTF-8')
         lines.append(line)
-    print "writing to dataset"
     with file(filename, 'a') as outfile:
         outfile.writelines(lines)
-    print "wrote it!"
 
 def writeTweets(tweets, filename):
     line = json.dumps(tweets, ensure_ascii = False).encode('UTF-8')
     with file(filename, 'w') as outfile:
         outfile.writelines(line)
 
-def get_since_id(path):
-    since_id  = 0
-    for infile in glob.glob( os.path.join(path, 'tweets_*.json') ):
-        pattern = 'tweets_([0-9]*).json'
+def get_since_id(path, state, user_id = -1):
+    since_id  = 1
+    for infile in glob.glob( os.path.join(path, "base_tweets_*.json" if state == 1 else "tweets_"+str(user_id)+"_"+"*.json") ):
+        pattern = 'base_tweets_([0-9]*).json' if state == 1 else 'tweets_'+str(user_id)+"_"+'([0-9]*).json'
         p = re.compile(pattern,re.M | re.I)
         matches = p.findall(infile)
         id = int(matches[0])
@@ -97,25 +95,41 @@ def get_since_id(path):
         since_id = max(id, since_id)
     return since_id
 
+def partial_update(dataset_path, data_path, backbone):
+    since_id = get_since_id(dataset_path, 1)
+    tweets, new_since_id = backbone.searchTweets("I rated #IMDB", since_id)
+    dump_result(tweets, new_since_id, dataset_path, data_path, "base_tweets_")
+
+def full_update(dataset_path, base_data_path, data_path, backbone):
+    s = []
+    with open(dataset_path + "/" + base_data_path,'r') as f:
+        for line in f:
+            s.append(line.split(',')[0])
+    s = set(s)
+    for user_id in s:
+        since_id = get_since_id("dataset/imdb",0,user_id)
+        if since_id != 1:
+            continue
+        #tweets, new_since_id = backbone.searchTweets('test',since_id, int(user_id))
+        try:
+            tweets, new_since_id = backbone.search_user_timeline("I rated #IMDB",since_id, user_id)
+            dataset = extractDataset(tweets)
+            writeDataset(dataset, dataset_path + '/' + data_path)
+            writeTweets(tweets, dataset_path + "/" + "tweets_"+str(user_id)+"_" + str(new_since_id) + '.json')
+        except TwitterHTTPError:
+	    print("sleeting for 15 minutes")
+            time.sleep(60*15)
+            continue
+        #dump_result(tweets, new_since_id, dataset_path, data_path, "tweets_")
+
+def dump_result(tweets, new_since_id, dataset_path, data_path, prefix = "base_tweets_"):
+    dataset = extractDataset(tweets)
+    writeDataset(dataset, dataset_path + '/' + data_path)
+    writeTweets(tweets, dataset_path + "/" + prefix + str(new_since_id) + '.json')
+
+
+
 if __name__ == "__main__":
     b = Backbone()
-
-    #datasetpath = 'dataset/imdb'
-    #since_id = get_since_id(datasetpath)
-
-    # screen_names = set()
-    # for line in open(datasetpath + '/ratings.dat', 'r'):
-    #     screen_names.add(line.split(',')[1])
-
-    # for name in screen_names:
-    #     tweets, new_since_id = b.searchTweets("I rated #IMDB from:"+screen_names)
-    #     dataset = extractDataset(tweets)
-    #     writeDataset(dataset, datasetpath + '/ratings_user.dat')
-    #     writeTweets(tweets, datasetpath + '/tweets_')
-
-    print(len(b.t.search.tweets(q="I rated #IMDB",count=1000)['statuses']))
-    #tweets, new_since_id =  b.searchTweets('I rated #IMDB from:ladawncp', since_id)
-
-    #dataset = extractDataset(tweets)
-    #writeDataset(dataset, datasetpath + '/ratings.dat')
-    #writeTweets(tweets,datasetpath + '/tweets_' + str(new_since_id) + '.json')
+    #partial_update("dataset/imdb","base_listens.dat",b)
+    full_update("dataset/imdb","base_listens.dat", "listens.dat",b)
